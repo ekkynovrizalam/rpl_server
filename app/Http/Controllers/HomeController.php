@@ -15,7 +15,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        // $this->middleware('auth');
+        $this->middleware('auth');
     }
 
     /**
@@ -28,36 +28,4 @@ class HomeController extends Controller
         return view('home');
     }
 
-    public function event()
-    {
-        return response('home',200);
-    }
-    
-    public function push_event(Request $request)
-    {
-        $data = $request->all();
-
-        Log::debug(json_encode($data));
-
-        return response($data, 200);
-    }
-
-    public function help(Request $request)
-    {
-        $data = $request->all();
-
-        Log::debug('HELP DEBUG: '.json_encode($data));
-
-        return response("success",200);
-    }
-
-    public function replay_message($message,$channel)
-    {
-        $response = Http::post('https://slack.com/api/chat.postMessage', [
-            'channel' => 'Steve',
-            'role' => 'Network Administrator',
-        ]);
-
-        return true;
-    }
 }

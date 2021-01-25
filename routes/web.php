@@ -20,3 +20,9 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Auth::routes();
+
+Route::get('/auth_to_slack', 'SlackController@authToSlack');
+
+Route::get('/landing', 'SlackController@landing');

@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 // });
 
 
-Route::post('/push_event', 'HomeController@push_event');
-Route::get('/event', 'HomeController@event');
-Route::post('/help', 'HomeController@help');
+Route::post('/push_event', 'SlackController@push_event');
+Route::get('/event', 'SlackController@event');
+Route::post('/help', 'SlackController@help');
+Route::post('/report', 'SlackController@report');
