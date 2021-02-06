@@ -26,3 +26,14 @@ Auth::routes();
 Route::get('/auth_to_slack', 'SlackController@authToSlack');
 
 Route::get('/landing', 'SlackController@landing');
+
+Route::get('/test', function(){
+  $documentFiles = Storage::disk('local')->files('\\');
+  foreach ($documentFiles as $key => $documentFile){
+
+    if ($key != 0) {
+    $path = Storage::disk('local')->get($documentFile);
+    $file_ftp = Storage::disk('google')->put($documentFile, $path);
+    }
+  }
+});
