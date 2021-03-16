@@ -23,3 +23,4 @@ Route::post('/push_event', 'SlackController@push_event');
 Route::get('/event', 'SlackController@event');
 Route::post('/help', 'SlackController@help');
 Route::post('/report', 'SlackController@report');
+Route::post('/regist', 'SlackController@regist');

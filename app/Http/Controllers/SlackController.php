@@ -71,19 +71,58 @@ class SlackController extends Controller
         return response($message,200)->header('Content-Type', 'application/json');
     }
 
+    public function regist(Request $request)
+    {
+        $response = Http::withToken(env('SLACK_TOKEN'))->withHeaders(['Accept'=>'application/x-www-form-urlencoded'])->get('https://slack.com/api/users.profile.get', [
+            'user' => $request['user_id'],
+        ]);
+
+    	Log::debug($response->body()['profile']);
+
+        $getData = $response->body()['profile'];
+
+        if(strlen(  $getData['real_name']) == 20 )
+        {
+            if (str_contains($getData['real_name'], '_'))
+            {
+                $infoUserName = explode("_", $getData['real_name']);
+                $realname = $getData['display_name'];
+            }
+            else
+                return response("FORMAT NAMA PROFILE ANDA SALAH",200)->header('Content-Type', 'application/json');
+        }
+        else
+            return response("FORMAT NAMA PROFILE ANDA SALAH",200)->header('Content-Type', 'application/json');
+
+        try {
+            DB::table('students')->insert([
+                'nim' => $infoUserName[0],
+                'kelas' => $infoUserName[1],
+                'tim' => $infoUserName[2],
+                'nama' => $realname
+            ]);
+
+            return response("Selamat anda sudah terdaftar,silahkan",200)->header('Content-Type', 'application/json');
+        } catch (Throwable $e) {
+            return response("ERROR :".$e,200)->header('Content-Type', 'application/json');
+        }
+    }
+
     public function report(Request $request)
     {
         $data = $request->all();
 
-        Log::debug('HELP DEBUG: '.json_encode($data));
-
-	$response = Http::withToken('xoxb-1389727810467-1664927276309-k0o6pCQN2Fjo7u4EvP4OcO4V')->withHeaders(['Accept'=>'application/x-www-form-urlencoded'])->get('https://slack.com/api/users.profile.get', [
-            'user' => 'U01BFFA92Q2',
+        $response = Http::withToken(env('SLACK_TOKEN'))->withHeaders(['Accept'=>'application/x-www-form-urlencoded'])->get('https://slack.com/api/users.profile.get', [
+            'user' => $request['user_id'],
         ]);
 
-	Log::debug($response->body());
+        if (str_contains($data['text'], '|'))
+        {
+            $text = explode("|",$data['text']);
+        }
+        else
+            return response("FORMAT LAPORAN ANDA ANDA SALAH",200)->header('Content-Type', 'application/json');
 
-        $text = explode("|",$data['text']);
 
         $username = $data['user_name'];
         $yesterday = $text[0];
