@@ -77,6 +77,12 @@ class SlackController extends Controller
 
         Log::debug('HELP DEBUG: '.json_encode($data));
 
+	$response = Http::withToken('xoxb-1389727810467-1664927276309-k0o6pCQN2Fjo7u4EvP4OcO4V')->withHeaders(['Accept'=>'application/x-www-form-urlencoded'])->get('https://slack.com/api/users.profile.get', [
+            'user' => 'U01BFFA92Q2',
+        ]);
+
+	Log::debug($response->body());
+
         $text = explode("|",$data['text']);
 
         $username = $data['user_name'];
