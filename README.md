@@ -1,14 +1,13 @@
-## SOP
+## About
 
-defaultnya sih commit di master (development)
-fitur-fitur yg dikuatirkan nyenggol sebaik nya develop di branch, merge lewat Pull Request
+BE untuk Bot Slack. Bot memiliki tujuan untuk provide kebutuhan MK Rekaya Perangkat Lunak di Sistem Informasi Telkom University.
 
 
-## Start Dev in your local computer
+## Guide to Use
 
 Clone Project Repo
-copy file `.env.example` menjadi `.env`
-set konfigurasi environment pada file .env
+copy file `.env.backup` menjadi `.env`
+set konfigurasi environment pada file .env tertutama konfigurasi SLACK dan Google Drive
 
 run composer install
 
