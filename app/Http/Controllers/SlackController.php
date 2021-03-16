@@ -12,10 +12,9 @@ class SlackController extends Controller
     {
         $response = Http::get('https://slack.com/oauth/v2/authorize', [
             'client_id' => '1389727810467.1664912761461',
-            'scope' => 'chat:write:bot,commands,im:read,im:write,users.profile:read'
+            'scope' => 'chat:write,commands,im:read,im:write,users.profile:read'
         ]);
 // 
-
         return $response;
     }
 
