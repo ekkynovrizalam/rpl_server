@@ -10,17 +10,18 @@ class SlackController extends Controller
 {
     public function authToSlack()
     {
-        $response = Http::get('https://slack.com/oauth/authorize', [
-            'scope' => 'chat:write:bot,commands,im:read,im:write,users.profile:read',
-            'client_id' => '1389727810467.1664912761461'
+        $response = Http::get('https://slack.com/oauth/v2/authorize', [
+            'client_id' => '1389727810467.1664912761461',
+            'scope' => 'chat:write:bot,commands,im:read,im:write,users.profile:read'
         ]);
 // 
 
         return $response;
     }
 
-    public function landing()
+    public function landing(Request $request)
     {
+        dd($request);
         return view('landing');
     }
 
