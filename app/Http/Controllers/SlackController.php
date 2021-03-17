@@ -23,13 +23,22 @@ class SlackController extends Controller
 
         $response = Http::asForm()->post('https://slack.com/api/oauth.v2.access', [
             'code' => $request['code'],
-		'client_id' => '1389727810467.1664912761461',
-		'client_secret' => '248a270b0c999ee455a5b6324ebf7831'
+            'client_id' => '1389727810467.1664912761461',
+            'client_secret' => '248a270b0c999ee455a5b6324ebf7831'
         ]);
 
-        dd($response->body());
+        $data = $response->body();
 
-        return view('landing');
+        try {
+            DB::table('workspaces')->insert([
+                'team_id' => $data['team']['id'],
+                'token' => $data['access_token'],
+            ]);
+
+            return view('landing');
+        } catch (Throwable $e) {
+            return $e;
+        }
     }
 
     public function event()
@@ -81,7 +90,10 @@ class SlackController extends Controller
 
     public function regist(Request $request)
     {
-        $response = Http::withToken(env('SLACK_TOKEN'))->withHeaders(['Accept'=>'application/x-www-form-urlencoded'])->get('https://slack.com/api/users.profile.get', [
+        $token = DB::table('workspaces')->where('team_id',$request['team_id'])->first();
+        
+    	Log::debug($token);
+        $response = Http::withToken($token)->withHeaders(['Accept'=>'application/x-www-form-urlencoded'])->get('https://slack.com/api/users.profile.get', [
             'user' => $request['user_id'],
         ]);
 
