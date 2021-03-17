@@ -21,12 +21,13 @@ class SlackController extends Controller
     public function landing(Request $request)
     {
 
-        $response = Http::withHeaders(['Accept'=>'application/x-www-form-urlencoded'])->post('https://slack.com/api/oauth.v2.access', [
+        $response = Http::asForm()->post('https://slack.com/api/oauth.v2.access', [
             'code' => $request['code'],
-            'scope' => 'chat:write,commands,im:read,im:write,users.profile:read'
+		'client_id' => '1389727810467.1664912761461',
+		'client_secret' => '248a270b0c999ee455a5b6324ebf7831'
         ]);
 
-        dd($response);
+        dd($response->body());
 
         return view('landing');
     }
