@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use DB;
 use Log;
 
 class SlackController extends Controller
@@ -27,18 +28,23 @@ class SlackController extends Controller
             'client_secret' => '248a270b0c999ee455a5b6324ebf7831'
         ]);
 
-        $data = $response->body();
+        $data = json_decode($response->body());
 
+	if($data->ok){
         try {
             DB::table('workspaces')->insert([
-                'team_id' => $data['team']['id'],
-                'token' => $data['access_token'],
+                'team_id' => $data->team->id,
+                'token' => $data->access_token,
             ]);
 
             return view('landing');
         } catch (Throwable $e) {
             return $e;
         }
+	}
+else{
+	return $data->error;
+}
     }
 
     public function event()
