@@ -15,6 +15,10 @@
         "laravel/framework": "^7.24",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.4",
+        "infyomlabs/laravel-generator": "7.0.x-dev",
+        "laravelcollective/html": "^6.1",
+        "infyomlabs/adminlte-templates": "^2.0",
+        "doctrine/dbal": "~2.3",
         "nao-pon/flysystem-google-drive": "~1.1"
     },
     "require-dev": {
