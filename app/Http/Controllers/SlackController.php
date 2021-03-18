@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\report;
 use App\Models\student;
+use Carbon\Carbon;
 use DB;
 use Log;
 
@@ -165,9 +166,9 @@ else{
                 try {
                     report::create([
                         'user_id' => $data['user_id'],
-                        'yesterday' => $infoUserName[0],
-                        'today' => $infoUserName[1],
-                        'blocker' => $infoUserName[2],
+                        'yesterday' => $yesterday,
+                        'today' => $today,
+                        'blocker' => $blocker,
                     ]);
         
                     $message = "
