@@ -96,23 +96,25 @@ else{
 
     public function regist(Request $request)
     {
-        $token = DB::table('workspaces')->where('team_id',$request['team_id'])->first();
-        
-    	Log::debug($token);
+	Log::debug($request);
+        $selectDataWorkspace = DB::table('workspaces')->where('team_id',$request['team_id'])->first();
+        $token = $selectDataWorkspace->token;
         $response = Http::withToken($token)->withHeaders(['Accept'=>'application/x-www-form-urlencoded'])->get('https://slack.com/api/users.profile.get', [
             'user' => $request['user_id'],
         ]);
 
-    	Log::debug($response->body()['profile']);
+        $getData = json_decode($response->body())->profile;
 
-        $getData = $response->body()['profile'];
+Log::debug(json_encode($getData));
 
-        if(strlen(  $getData['real_name']) == 20 )
+        if(strlen(  $getData->real_name) == 22 )
         {
-            if (str_contains($getData['real_name'], '_'))
+		Log::debug("real_name sesuai ".$getData->real_name);
+            if (str_contains($getData->real_name, '_'))
             {
-                $infoUserName = explode("_", $getData['real_name']);
-                $realname = $getData['display_name'];
+		Log::debug("format realname sesuai");
+                $infoUserName = explode("_", $getData->real_name);
+                $realname = $getData->display_name;
             }
             else
                 return response("FORMAT NAMA PROFILE ANDA SALAH",200)->header('Content-Type', 'application/json');
