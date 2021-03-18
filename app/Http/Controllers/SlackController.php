@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use App\Models\report;
+use App\Models\student;
 use DB;
 use Log;
 
@@ -96,7 +98,6 @@ else{
 
     public function regist(Request $request)
     {
-	Log::debug($request);
         $selectDataWorkspace = DB::table('workspaces')->where('team_id',$request['team_id'])->first();
         $token = $selectDataWorkspace->token;
         $response = Http::withToken($token)->withHeaders(['Accept'=>'application/x-www-form-urlencoded'])->get('https://slack.com/api/users.profile.get', [
@@ -104,8 +105,6 @@ else{
         ]);
 
         $getData = json_decode($response->body())->profile;
-
-Log::debug(json_encode($getData));
 
         if(strlen(  $getData->real_name) == 22 )
         {
@@ -123,7 +122,8 @@ Log::debug(json_encode($getData));
             return response("FORMAT NAMA PROFILE ANDA SALAH",200)->header('Content-Type', 'application/json');
 
         try {
-            DB::table('students')->insert([
+            student::create([
+                'user_id' => $request['user_id'],
                 'nim' => $infoUserName[0],
                 'kelas' => $infoUserName[1],
                 'tim' => $infoUserName[2],
@@ -138,75 +138,101 @@ Log::debug(json_encode($getData));
 
     public function report(Request $request)
     {
+        $selectDataWorkspace = DB::table('workspaces')->where('team_id',$request['team_id'])->first();
+        $token = $selectDataWorkspace->token;
         $data = $request->all();
 
-        $response = Http::withToken(env('SLACK_TOKEN'))->withHeaders(['Accept'=>'application/x-www-form-urlencoded'])->get('https://slack.com/api/users.profile.get', [
-            'user' => $request['user_id'],
-        ]);
+        $isUserExist = DB::table('students')->where('user_id',$request['user_id'])->count();
 
-        if (str_contains($data['text'], '|'))
+        if($isUserExist > 0)
         {
-            $text = explode("|",$data['text']);
-        }
-        else
-            return response("FORMAT LAPORAN ANDA ANDA SALAH",200)->header('Content-Type', 'application/json');
-
-
-        $username = $data['user_name'];
-        $yesterday = $text[0];
-        $today = $text[1];
-        $blocker = $text[2];
-
-        $message = "
+            if (str_contains($data['text'], '|'))
             {
-                'blocks': [
-                    {
-                        'type': 'header',
-                        'text': {
-                            'type': 'plain_text',
-                            'text': 'Rekap Report @".$username."',
-                            'emoji': true
-                        }
-                    },
-                    {
-                        'type': 'divider'
-                    },
-                    {
-                        'type': 'section',
-                        'text': {
-                            'type': 'mrkdwn',
-                            'text': ':dart: *Yang Dilakukan*\n ".$today."'
-                        }
-                    },
-                    {
-                        'type': 'section',
-                        'text': {
-                            'type': 'mrkdwn',
-                            'text': ':clock730: *Yang Sudah dilakukan*\n ".$yesterday."'
-                        }
-                    },
-                    {
-                        'type': 'section',
-                        'text': {
-                            'type': 'mrkdwn',
-                            'text': ':negative_squared_cross_mark: *Hambatan*\n ".$blocker."'
-                        }
-                    },
-                    {
-                        'type': 'divider'
-                    },
-                    {
-                        'type': 'section',
-                        'text': {
-                            'type': 'mrkdwn',
-                            'text': '*Pastikan Anda selalu melakukan daily report dari senin-jumat* Development by <novriza.com|ENA>'
-                        }
-                    }
-                ]
+                $text = explode("|",$data['text']);
             }
-        ";
+            else
+                return response("FORMAT LAPORAN ANDA ANDA SALAH",200)->header('Content-Type', 'application/json');
+    
+    
+            $username = $data['user_id'];
+            $yesterday = $text[0];
+            $today = $text[1];
+            $blocker = $text[2];
 
-        return response($message,200)->header('Content-Type', 'application/json');
+            if(report::where('created_at', '>=', Carbon::today())->count() == 0 ){
+                Log::debug(Carbon::now()->toTimeString());
+                Log::debug(Carbon::now()->toTimeString() > "12:00:00");
+                try {
+                    report::create([
+                        'user_id' => $data['user_id'],
+                        'yesterday' => $infoUserName[0],
+                        'today' => $infoUserName[1],
+                        'blocker' => $infoUserName[2],
+                    ]);
+        
+                    $message = "
+                        {
+                            'blocks': [
+                                {
+                                    'type': 'header',
+                                    'text': {
+                                        'type': 'plain_text',
+                                        'text': 'Rekap Report @".$username."',
+                                        'emoji': true
+                                    }
+                                },
+                                {
+                                    'type': 'divider'
+                                },
+                                {
+                                    'type': 'section',
+                                    'text': {
+                                        'type': 'mrkdwn',
+                                        'text': ':dart: *Yang Dilakukan*\n ".$today."'
+                                    }
+                                },
+                                {
+                                    'type': 'section',
+                                    'text': {
+                                        'type': 'mrkdwn',
+                                        'text': ':clock730: *Yang Sudah dilakukan*\n ".$yesterday."'
+                                    }
+                                },
+                                {
+                                    'type': 'section',
+                                    'text': {
+                                        'type': 'mrkdwn',
+                                        'text': ':negative_squared_cross_mark: *Hambatan*\n ".$blocker."'
+                                    }
+                                },
+                                {
+                                    'type': 'divider'
+                                },
+                                {
+                                    'type': 'section',
+                                    'text': {
+                                        'type': 'mrkdwn',
+                                        'text': '*Pastikan Anda selalu melakukan daily report dari senin-jumat* Development by <novriza.com|ENA>'
+                                    }
+                                }
+                            ]
+                        }
+                    ";
+            
+                    return response($message,200)->header('Content-Type', 'application/json');
+                } catch (Throwable $e) {
+                    return response("ERROR :".$e,200)->header('Content-Type', 'application/json');
+                }
+            }else{
+                return response("Mohon maaf anda sudah melakukan laporan hari ini",200)->header('Content-Type', 'application/json');
+            }
+
+            
+        }else{
+            return response("Mohon maaf anda belum terdaftar di database kami, silahkan melakukan registrasi trlebih dahulu",200)->header('Content-Type', 'application/json');
+        }
+
+
     }
 
     public function replay_message($message,$channel)
