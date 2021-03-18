@@ -19,8 +19,7 @@ class student extends Model
 {
 
     public $table = 'students';
-
-    $timestamps = true;
+    public $timestamps = true;
     
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
