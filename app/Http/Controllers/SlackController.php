@@ -161,69 +161,72 @@ else{
             $blocker = $text[2];
 
             if(report::where('created_at', '>=', Carbon::today())->count() == 0 ){
-                Log::debug(Carbon::now()->toTimeString());
-                Log::debug(Carbon::now()->toTimeString() > "12:00:00");
-                try {
-                    report::create([
-                        'user_id' => $data['user_id'],
-                        'yesterday' => $yesterday,
-                        'today' => $today,
-                        'blocker' => $blocker,
-                    ]);
-        
-                    $message = "
-                        {
-                            'blocks': [
-                                {
-                                    'type': 'header',
-                                    'text': {
-                                        'type': 'plain_text',
-                                        'text': 'Rekap Report @".$username."',
-                                        'emoji': true
-                                    }
-                                },
-                                {
-                                    'type': 'divider'
-                                },
-                                {
-                                    'type': 'section',
-                                    'text': {
-                                        'type': 'mrkdwn',
-                                        'text': ':dart: *Yang Dilakukan*\n ".$today."'
-                                    }
-                                },
-                                {
-                                    'type': 'section',
-                                    'text': {
-                                        'type': 'mrkdwn',
-                                        'text': ':clock730: *Yang Sudah dilakukan*\n ".$yesterday."'
-                                    }
-                                },
-                                {
-                                    'type': 'section',
-                                    'text': {
-                                        'type': 'mrkdwn',
-                                        'text': ':negative_squared_cross_mark: *Hambatan*\n ".$blocker."'
-                                    }
-                                },
-                                {
-                                    'type': 'divider'
-                                },
-                                {
-                                    'type': 'section',
-                                    'text': {
-                                        'type': 'mrkdwn',
-                                        'text': '*Pastikan Anda selalu melakukan daily report dari senin-jumat* Development by <novriza.com|ENA>'
-                                    }
-                                }
-                            ]
-                        }
-                    ";
+                if(Carbon::now()->toTimeString() < "12:00:00"){
+                    try {
+                        report::create([
+                            'user_id' => $data['user_id'],
+                            'yesterday' => $yesterday,
+                            'today' => $today,
+                            'blocker' => $blocker,
+                        ]);
             
-                    return response($message,200)->header('Content-Type', 'application/json');
-                } catch (Throwable $e) {
-                    return response("ERROR :".$e,200)->header('Content-Type', 'application/json');
+                        $message = "
+                            {
+                                'blocks': [
+                                    {
+                                        'type': 'header',
+                                        'text': {
+                                            'type': 'plain_text',
+                                            'text': 'Rekap Report @".$username."',
+                                            'emoji': true
+                                        }
+                                    },
+                                    {
+                                        'type': 'divider'
+                                    },
+                                    {
+                                        'type': 'section',
+                                        'text': {
+                                            'type': 'mrkdwn',
+                                            'text': ':dart: *Yang Dilakukan*\n ".$today."'
+                                        }
+                                    },
+                                    {
+                                        'type': 'section',
+                                        'text': {
+                                            'type': 'mrkdwn',
+                                            'text': ':clock730: *Yang Sudah dilakukan*\n ".$yesterday."'
+                                        }
+                                    },
+                                    {
+                                        'type': 'section',
+                                        'text': {
+                                            'type': 'mrkdwn',
+                                            'text': ':negative_squared_cross_mark: *Hambatan*\n ".$blocker."'
+                                        }
+                                    },
+                                    {
+                                        'type': 'divider'
+                                    },
+                                    {
+                                        'type': 'section',
+                                        'text': {
+                                            'type': 'mrkdwn',
+                                            'text': '*Pastikan Anda selalu melakukan daily report dari senin-jumat* Development by <novriza.com|ENA>'
+                                        }
+                                    }
+                                ]
+                            }
+                        ";
+                
+                        return response($message,200)->header('Content-Type', 'application/json');
+                    } catch (Throwable $e) {
+                        return response("ERROR :".$e,200)->header('Content-Type', 'application/json');
+                    }
+                }else{
+                    return response("Mohon maaf anda sudah melewati batas waktu laporan hari ini",200)->header('Content-Type', 'application/json');
                 }
+                
             }else{
                 return response("Mohon maaf anda sudah melakukan laporan hari ini",200)->header('Content-Type', 'application/json');
             }
