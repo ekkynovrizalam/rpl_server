@@ -168,7 +168,7 @@ else{
             $today = $text[1];
             $blocker = $text[2];
 
-            if(report::where('created_at', '>=', Carbon::today())->count() == 0 ){
+            if(report::where('created_at', '>=', Carbon::today())->where('user_id',$data['user_id'])->count() == 0 ){
                 if(Carbon::now()->toTimeString() < "12:00:00"){
                     try {
                         report::create([
