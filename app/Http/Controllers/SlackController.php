@@ -123,15 +123,23 @@ else{
             return response("FORMAT NAMA PROFILE ANDA SALAH",200)->header('Content-Type', 'application/json');
 
         try {
-            student::create([
-                'user_id' => $request['user_id'],
-                'nim' => $infoUserName[0],
-                'kelas' => $infoUserName[1],
-                'tim' => $infoUserName[2],
-                'nama' => $realname
-            ]);
 
-            return response("Selamat anda sudah terdaftar,silahkan",200)->header('Content-Type', 'application/json');
+            $isStudentExist = student::where('user_id',$request['user_id'])->count();
+            
+            if($isStudentExist == 0){
+                student::create([
+                    'user_id' => $request['user_id'],
+                    'nim' => $infoUserName[0],
+                    'kelas' => $infoUserName[1],
+                    'tim' => $infoUserName[2],
+                    'nama' => $realname
+                ]);
+    
+                return response("Selamat anda sudah terdaftar,silahkan",200)->header('Content-Type', 'application/json');
+            }else{
+                return response("Maaf, Anda sudah terdaftar. Registrasi hanya dilakukan 1 kali saja.",200)->header('Content-Type', 'application/json');
+            }
+            
         } catch (Throwable $e) {
             return response("ERROR :".$e,200)->header('Content-Type', 'application/json');
         }
