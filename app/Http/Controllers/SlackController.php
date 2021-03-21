@@ -119,11 +119,11 @@ else{
             else
                 return response("FORMAT NAMA PROFILE ANDA SALAH",200)->header('Content-Type', 'application/json');
         }
-        else
-            return response("FORMAT NAMA PROFILE ANDA SALAH",200)->header('Content-Type', 'application/json');
-
+        else{
+            Log::debug("format nama kepanjangan");
+            return response("FORMAT NAMA PROFILE ANDA TIDAK SESUAI",200)->header('Content-Type', 'application/json');
+        }
         try {
-
             $isStudentExist = student::where('user_id',$request['user_id'])->count();
             
             if($isStudentExist == 0){
