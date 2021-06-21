@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Eloquent as Model;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class report
@@ -60,6 +61,24 @@ class report extends Model
         'updated_at' => 'nullable',
         'user_id' => 'nullable|string|max:255'
     ];
+
+    public static function detailByClass($kelas,$startDate, $endDate)
+    {
+        return $this->join('student','student.user_id','=','reports.user_id')
+            ->select('reports.*','student.nim','student.kelas','student.tim')
+            ->where('kelas',$kelas)->where('created_at','>=',$startDate)->where('created_at','<=',$endDate)
+            ->get();
+    }
+
+    public static function resumeByClass($kelas,$startDate, $endDate)
+    {
+        return $this->join('student','student.user_id','=','reports.user_id')
+            ->select(DB::raw('student.nim,student.kelas,student.tim, count(report.user_id) as count'))
+            ->where('kelas',$kelas)->where('created_at','>=',$startDate)->where('created_at','<=',$endDate)
+            ->groupBy('user_id','nim','kelas','tim')
+            ->get();
+    }
+
 
     
 }
