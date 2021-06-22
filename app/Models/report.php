@@ -64,9 +64,9 @@ class report extends Model
 
     public function detailByClass($kelas,$startDate, $endDate)
     {
-        return $this->join('student','student.user_id','=','reports.user_id')
-            ->select('reports.*','student.nim','student.kelas','student.tim')
-            ->where('kelas',$kelas)->where('created_at','>=',$startDate)->where('created_at','<=',$endDate)
+        return $this->join('students','students.user_id','=','reports.user_id')
+            ->select('reports.*','students.nim','students.kelas','students.tim')
+            ->where('kelas',$kelas)->where('reports.created_at','>=',$startDate)->where('reports.created_at','<=',$endDate)
             ->get();
     }
 
