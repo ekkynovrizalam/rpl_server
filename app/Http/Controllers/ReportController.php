@@ -9,8 +9,8 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
-    public function dailyReport($kelas,$start_date,$finish_date)
+    public static function dailyReport($kelas,$start_date,$finish_date)
     {
-        return Excel::download(new ReportsExport, 'invoices.xlsx');
+        return Excel::download(new ReportsExport($kelas,$start_date,$finish_date), $kelas."-".$start_date." - ".$finish_date.'.xlsx');
     }
 }
