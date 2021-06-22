@@ -75,7 +75,7 @@ class report extends Model
         return $this->join('students','students.user_id','=','reports.user_id')
             ->select(DB::raw('students.nim,students.kelas,students.tim, count(reports.user_id) as count'))
             ->where('kelas',$kelas)->where('reports.created_at','>=',$startDate)->where('reports.created_at','<=',$endDate)
-            ->groupBy('reports.user_id','nim','kelas','tim')
+            ->groupBy('reports.user_id','nim','kelas','tim')->orderBy('tim')
             ->get();
     }
 
