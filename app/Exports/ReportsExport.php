@@ -10,8 +10,8 @@ class ReportsExport implements FromCollection,WithHeadings
 {
     public function __construct($kelas,$start_date,$finish_date)
     {
-        $this->kelas = $kelas,
-        $this->start_date = $start_date,
+        $this->kelas = $kelas;
+        $this->start_date = $start_date;
         $this->finish_date = $finish_date;
     }
 

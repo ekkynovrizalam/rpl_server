@@ -11,6 +11,6 @@ class ReportController extends Controller
 {
     public static function dailyReport($kelas,$start_date,$finish_date)
     {
-        return Excel::download(new ReportsExport($kelas,$start_date,$finish_date), $kelas."-".$start_date." - ".$finish_date.'.xlsx');
+        return Excel::store(new ReportsExport($kelas,$start_date,$finish_date), $kelas."-".$start_date." - ".$finish_date.'.xlsx','google');
     }
 }
