@@ -3,13 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\report;
+use App\Exports\ReportExport;
 
 class ReportController extends Controller
 {
     public function dailyReport($kelas,$start_date,$finish_date)
     {
-	$report = new report();
-        dd($report->resumeByClass('SI4202','2021-02-01','2021-07-01'));
+        return Excel::store(new ReportExport, 'invoices.xlsx', 's3');
     }
 }
