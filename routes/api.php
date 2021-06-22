@@ -24,3 +24,4 @@ Route::get('/event', 'SlackController@event');
 Route::post('/help', 'SlackController@help');
 Route::post('/report', 'SlackController@report');
 Route::post('/regist', 'SlackController@regist');
+Route::get('/selectDB/{kelas}/{start_date}/{finish_date}','ReportController@dailyReport');

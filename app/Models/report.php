@@ -62,7 +62,7 @@ class report extends Model
         'user_id' => 'nullable|string|max:255'
     ];
 
-    public static function detailByClass($kelas,$startDate, $endDate)
+    public function detailByClass($kelas,$startDate, $endDate)
     {
         return $this->join('student','student.user_id','=','reports.user_id')
             ->select('reports.*','student.nim','student.kelas','student.tim')
@@ -70,12 +70,12 @@ class report extends Model
             ->get();
     }
 
-    public static function resumeByClass($kelas,$startDate, $endDate)
+    public function resumeByClass($kelas,$startDate, $endDate)
     {
-        return $this->join('student','student.user_id','=','reports.user_id')
-            ->select(DB::raw('student.nim,student.kelas,student.tim, count(report.user_id) as count'))
-            ->where('kelas',$kelas)->where('created_at','>=',$startDate)->where('created_at','<=',$endDate)
-            ->groupBy('user_id','nim','kelas','tim')
+        return $this->join('students','students.user_id','=','reports.user_id')
+            ->select(DB::raw('students.nim,students.kelas,students.tim, count(reports.user_id) as count'))
+            ->where('kelas',$kelas)->where('reports.created_at','>=',$startDate)->where('reports.created_at','<=',$endDate)
+            ->groupBy('reports.user_id','nim','kelas','tim')
             ->get();
     }
 
