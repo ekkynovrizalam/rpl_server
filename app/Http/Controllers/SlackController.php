@@ -107,7 +107,7 @@ else{
 
         $getData = json_decode($response->body())->profile;
 
-        if(strlen(  $getData->real_name) == 22 )
+        if(strlen(  $getData->real_name) >= 22 )
         {
 		Log::debug("real_name sesuai ".$getData->real_name);
             if (str_contains($getData->real_name, '_'))
@@ -120,7 +120,7 @@ else{
                 return response("FORMAT NAMA PROFILE ANDA SALAH",200)->header('Content-Type', 'application/json');
         }
         else{
-            Log::debug("format nama kepanjangan");
+            Log::debug("format nama terlalu pendek");
             return response("FORMAT NAMA PROFILE ANDA TIDAK SESUAI",200)->header('Content-Type', 'application/json');
         }
         try {
