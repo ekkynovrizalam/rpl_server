@@ -98,52 +98,66 @@ else{
     }
 
     public function regist(Request $request)
-    {
-        $selectDataWorkspace = DB::table('workspaces')->where('team_id',$request['team_id'])->first();
-        $token = $selectDataWorkspace->token;
-        $response = Http::withToken($token)->withHeaders(['Accept'=>'application/x-www-form-urlencoded'])->get('https://slack.com/api/users.profile.get', [
-            'user' => $request['user_id'],
-        ]);
-
-        $getData = json_decode($response->body())->profile;
-
-        if(strlen(  $getData->real_name) >= 22 )
-        {
-		Log::debug("real_name sesuai ".$getData->real_name);
-            if (str_contains($getData->real_name, '_'))
-            {
-		Log::debug("format realname sesuai");
-                $infoUserName = explode("_", $getData->real_name);
-                $realname = $getData->display_name;
-            }
-            else
-                return response("FORMAT NAMA PROFILE ANDA SALAH",200)->header('Content-Type', 'application/json');
-        }
-        else{
-            Log::debug("format nama terlalu pendek");
-            return response("FORMAT NAMA PROFILE ANDA TIDAK SESUAI",200)->header('Content-Type', 'application/json');
-        }
-        try {
-            $isStudentExist = student::where('user_id',$request['user_id'])->count();
-            
-            if($isStudentExist == 0){
-                student::create([
-                    'user_id' => $request['user_id'],
-                    'nim' => $infoUserName[0],
-                    'kelas' => $infoUserName[1],
-                    'tim' => $infoUserName[2],
-                    'nama' => $realname
-                ]);
-    
-                return response("Selamat anda sudah terdaftar,silahkan",200)->header('Content-Type', 'application/json');
-            }else{
-                return response("Maaf, Anda sudah terdaftar. Registrasi hanya dilakukan 1 kali saja.",200)->header('Content-Type', 'application/json');
-            }
-            
-        } catch (Throwable $e) {
-            return response("ERROR :".$e,200)->header('Content-Type', 'application/json');
-        }
-    }
+	{
+	    try {
+	        $workspace = DB::table('workspaces')->where('team_id', $request->team_id)->first();
+	
+	        if (!$workspace) {
+	            return response("WORKSPACE TIDAK DITEMUKAN", 400)->header('Content-Type', 'application/json');
+	        }
+	
+	        $token = $workspace->token;
+	
+	        $response = Http::withToken($token)
+	            ->withHeaders(['Accept' => 'application/x-www-form-urlencoded'])
+	            ->get('https://slack.com/api/users.profile.get', [
+	                'user' => $request->user_id,
+	            ]);
+	
+	        $profile = json_decode($response->body())->profile ?? null;
+	
+	        if (!$profile || empty($profile->real_name)) {
+	            return response("GAGAL MENGAMBIL NAMA PENGGUNA", 400)->header('Content-Type', 'application/json');
+	        }
+	
+	        $realName = $profile->real_name;
+	        $displayName = $profile->display_name;
+	
+	        // Validasi format NIM_KELAS_TIM
+	        $parts = explode('_', $realName);
+	
+	        if (count($parts) !== 3) {
+	            return response("FORMAT NAMA SALAH. Gunakan format: NIM_KELAS_TIM", 400)->header('Content-Type', 'application/json');
+	        }
+	
+	        [$nim, $kelas, $tim] = $parts;
+	
+	        // Validasi tambahan (opsional): Cek apakah NIM hanya angka
+	        if (!ctype_digit($nim)) {
+	            return response("FORMAT NIM TIDAK VALID. NIM hanya boleh berupa angka.", 400)->header('Content-Type', 'application/json');
+	        }
+	
+	        // Cek apakah sudah terdaftar
+	        if (student::where('user_id', $request->user_id)->exists()) {
+	            return response("Anda sudah terdaftar. Registrasi hanya dilakukan 1 kali.", 200)->header('Content-Type', 'application/json');
+	        }
+	
+	        // Registrasi user
+	        student::create([
+	            'user_id' => $request->user_id,
+	            'nim' => $nim,
+	            'kelas' => $kelas,
+	            'tim' => $tim,
+	            'nama' => $displayName ?: $realName,
+	        ]);
+	
+	        return response("Selamat, Anda berhasil terdaftar!", 200)->header('Content-Type', 'application/json');
+	
+	    } catch (Throwable $e) {
+	        Log::error('Registrasi Gagal: '.$e->getMessage());
+	        return response("Terjadi kesalahan saat registrasi.", 500)->header('Content-Type', 'application/json');
+	    }
+	}
 
     public function report(Request $request)
     {
