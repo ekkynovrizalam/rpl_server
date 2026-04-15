@@ -103,7 +103,7 @@ else{
 	        $workspace = DB::table('workspaces')->where('team_id', $request->team_id)->first();
 	
 	        if (!$workspace) {
-	            return response("WORKSPACE TIDAK DITEMUKAN", 400)->header('Content-Type', 'application/json');
+	            return response("WORKSPACE TIDAK DITEMUKAN", 200)->header('Content-Type', 'application/json');
 	        }
 	
 	        $token = $workspace->token;
@@ -117,7 +117,7 @@ else{
 	        $profile = json_decode($response->body())->profile ?? null;
 	
 	        if (!$profile || empty($profile->real_name)) {
-	            return response("GAGAL MENGAMBIL NAMA PENGGUNA", 400)->header('Content-Type', 'application/json');
+	            return response("GAGAL MENGAMBIL NAMA PENGGUNA", 200)->header('Content-Type', 'application/json');
 	        }
 	
 	        $realName = $profile->real_name;
@@ -127,14 +127,14 @@ else{
 	        $parts = explode('_', $realName);
 	
 	        if (count($parts) !== 3) {
-	            return response("FORMAT NAMA SALAH. Gunakan format: NIM_KELAS_TIM", 400)->header('Content-Type', 'application/json');
+	            return response("FORMAT NAMA SALAH. Gunakan format: NIM_KELAS_TIM", 200)->header('Content-Type', 'application/json');
 	        }
 	
 	        [$nim, $kelas, $tim] = $parts;
 	
 	        // Validasi tambahan (opsional): Cek apakah NIM hanya angka
 	        if (!ctype_digit($nim)) {
-	            return response("FORMAT NIM TIDAK VALID. NIM hanya boleh berupa angka.", 400)->header('Content-Type', 'application/json');
+	            return response("FORMAT NIM TIDAK VALID. NIM hanya boleh berupa angka.", 200)->header('Content-Type', 'application/json');
 	        }
 	
 	        // Cek apakah sudah terdaftar
@@ -155,7 +155,7 @@ else{
 	
 	    } catch (Throwable $e) {
 	        Log::error('Registrasi Gagal: '.$e->getMessage());
-	        return response("Terjadi kesalahan saat registrasi.", 500)->header('Content-Type', 'application/json');
+	        return response("Terjadi kesalahan saat registrasi.", 200)->header('Content-Type', 'application/json');
 	    }
 	}
 
