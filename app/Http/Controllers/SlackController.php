@@ -172,15 +172,20 @@ else{
             if (str_contains($data['text'], '|'))
             {
                 $text = explode("|",$data['text']);
+				if(count($text) == 3){
+                    $yesterday = $text[0];
+                    $today = $text[1];
+                    $blocker = $text[2];
+                }
+                else{
+                    return response("FORMAT LAPORAN ANDA ANDA SALAH",200)->header('Content-Type', 'application/json');
+                }
             }
             else
                 return response("FORMAT LAPORAN ANDA ANDA SALAH",200)->header('Content-Type', 'application/json');
     
     
             $username = $data['user_id'];
-            $yesterday = $text[0];
-            $today = $text[1];
-            $blocker = $text[2];
 
             if(report::where('created_at', '>=', Carbon::today())->where('user_id',$data['user_id'])->count() == 0 ){
                 if(Carbon::now()->toTimeString() < "12:00:00"){
